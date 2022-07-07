@@ -1,0 +1,712 @@
+
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+POST _analyze
+{
+  "analyzer": "standard",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+
+POST _analyze
+{
+  "analyzer": "simple",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+POST _analyze
+{
+  "analyzer": "whitespace",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+
+POST _analyze
+{
+  "analyzer": "keyword",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+
+DELETE test_standard_analyzer
+
+PUT test_standard_analyzer
+{
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "analyzer": "standard"
+      }
+    }
+  },
+  "settings": {
+    "index": {
+      "number_of_shards": "1",
+      "number_of_replicas": "1"
+    }
+  }
+}
+
+GET test_standard_analyzer/_count
+
+POST test_standard_analyzer/_doc
+{
+  "content": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+GET test_standard_analyzer/_search
+{
+  "query": {
+    "term": {
+      "content": {
+        "value": "2"
+      }
+    }
+  }
+}
+
+GET test_standard_analyzer/_search
+{
+  "query": {
+    "term": {
+      "content": {
+        "value": "quick"
+      }
+    }
+  }
+}
+
+
+DELETE test_simple_analyzer
+
+PUT test_simple_analyzer
+{
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "analyzer": "simple"
+      }
+    }
+  }
+}
+
+POST test_simple_analyzer/_doc/
+{
+  "content": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+GET test_simple_analyzer/_search
+{
+  "query": {
+    "term": {
+      "content": {
+        "value": "2"
+      }
+    }
+  }
+}
+
+GET test_simple_analyzer/_search
+{
+  "query": {
+    "term": {
+      "content": {
+        "value": "quick"
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "match": {
+      "chapter": {
+        "query": "door closed BehInd dorian."
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "match": {
+      "chapter": {
+        "query": "door closed behind doriAn",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "match": {
+      "chapter": {
+        "query": "doriann",
+        "fuzziness": "AUTO"
+      }
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "match": {
+      "chapter": {
+        "query": "doriann",
+        "fuzziness": "1",
+        "fuzzy_transpositions": "true",
+        "max_expansions": 10,
+        "prefix_length": 5
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "door AND closed AND Behind AND Dorian",
+      "default_field": "chapter"
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "door Closed behind dorian",
+      "default_field": "chapter",
+      "default_operator": "and"
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "over*essed society",
+      "default_field": "chapter",
+      "default_operator": "AND"
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "door closed behind dorian",
+      "fields": [
+        "chapter"
+      ],
+      "minimum_should_match": "90%"
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "the door closed behind dorian",
+      "fields": [
+        "chapter"
+      ],
+      "minimum_should_match": "5"
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "Dorina~",
+      "default_field": "chapter"
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "dornia~",
+      "default_field": "chapter",
+      "fuzziness": "2"
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "query_string": {
+      "query": "door AND closed AND (behind OR dorian)",
+      "default_field": "chapter"
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "chapter": {
+        "query": "The door closed behind dorian",
+        "slop": 3
+      }
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "term": {
+      "chapter": {
+        "value": "Dorian"
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "term": {
+      "chapter": {
+        "value": "dorian"
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "terms": {
+      "chapter": [
+        "door",
+        "closed",
+        "behind",
+        "dorian"
+      ]
+    }
+  }
+}
+
+
+
+GET book_index/_search
+{
+  "query": {
+    "prefix": {
+      "chapter": {
+        "value": "tyrianconvol"
+      }
+    }
+  }
+}
+
+
+GET data_index/_search
+{
+  "query": {
+    "range": {
+      "date": {
+        "gte": "now-10d",
+        "lte": "now-3d"
+      }
+    }
+  }
+}
+
+GET data_index/_search
+{
+  "query": {
+    "range": {
+      "date": {
+        "gte": "1656655078715",
+        "lte": "1656655078717"
+      }
+    }
+  }
+}
+
+
+GET data_index/_search
+{
+  "query": {
+    "bool": {
+      "must_not": {
+        "exists": {
+          "field": "area_code"
+        }
+      }
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "wildcard": {
+      "chapter": {
+        "value": "over*ressed"
+      }
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "fuzzy": {
+      "chapter": {
+        "value": "aftervords",
+        "fuzziness": 2,
+        "max_expansions": 50,
+        "prefix_length": 3
+      }
+    }
+  }
+}
+
+
+GET book_index/_search
+{
+  "query": {
+    "span_near": {
+      "clauses": [
+        {
+          "span_term": {
+            "chapter": "men"
+          }
+        },
+        {
+          "span_term": {
+            "chapter": "and"
+          }
+        },
+        {
+          "span_term": {
+            "chapter": "women"
+          }
+        }
+      ],
+      "slop": 4,
+      "in_order": true
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "span_near": {
+      "clauses": [
+        {
+          "span_term": {
+            "chapter": "reached"
+          }
+        },
+        {
+          "span_term": {
+            "chapter": "library"
+          }
+        },
+        {
+          "span_term": {
+            "chapter": "bag"
+          }
+        }
+      ],
+      "slop": 4,
+      "in_order": true
+    }
+  }
+}
+
+GET book_index/_search
+{
+  "query": {
+    "span_not": {
+      "include": {
+        "span_near": {
+          "clauses": [
+            {
+              "span_term": {
+                "chapter": "reached"
+              }
+            },
+            {
+              "span_term": {
+                "chapter": "library"
+              }
+            }
+          ],
+          "slop": 1,
+          "in_order": true
+        }
+      },
+      "exclude": {
+        "span_term": {
+          "chapter": "a"
+        }
+      }
+    }
+  }
+}
+
+
+GET data_index/_search
+{
+  "size": 40,
+  "query": {
+    "bool": {
+      "must": {
+        "term": {
+          "city": {
+            "value": "New Jersey Bmc"
+          }
+        }
+      },
+      "filter": {
+        "geo_bounding_box": {
+          "location": {
+            "top_left": {
+              "lat": 40.73,
+              "lon": -74.1
+            },
+            "bottom_right": {
+              "lat": 40.01,
+              "lon": -73.12
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+GET data_index/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match_all": {}
+      },
+      "filter": {
+        "geo_distance": {
+          "distance": "3km",
+          "location": {
+            "lat": 40.73,
+            "lon": -74.1
+          }
+        }
+      }
+    }
+  }
+}
+
+GET data_index/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match_all": {}
+      },
+      "filter": {
+        "geo_shape": {
+          "location": {
+            "shape": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -74.168701171875,
+                    41.14143302653628
+                  ],
+                  [
+                    -74.6136474609375,
+                    40.697299008636755
+                  ],
+                  [
+                    -74.0753173828125,
+                    40.509622849596695
+                  ],
+                  [
+                    -73.114013671875,
+                    40.46784549077255
+                  ],
+                  [
+                    -73.333740234375,
+                    40.896905775860006
+                  ],
+                  [
+                    -74.168701171875,
+                    41.14143302653628
+                  ]
+                ]
+              ]
+            },
+            "relation": "within"
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT /data_index
+{
+  "mappings": {
+    "properties": {
+      "area_code": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "city": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "code": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "county": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "date": {
+        "type": "date"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "state": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "index": {
+      "number_of_shards": "1",
+      "number_of_replicas": "1"
+    }
+  }
+}
+
+GET data_index/_count
+
+
+GET data_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "by_day": {
+      "date_histogram": {
+        "field":     "date",
+        "calendar_interval":  "second"
+      }
+    }
+  }
+}
+
+GET data_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "by_day": {
+      "date_histogram": {
+        "field":     "date",
+        "calendar_interval":  "second"
+      }
+    }
+  }
+}
+
+
+GET data_index/_search
+{"size": 1,
+  "query": {
+    "term": {
+      "code": {
+        "value": "63702"
+      }
+    }
+  },
+  "aggs": {
+    "cities": {
+      "terms": { "field": "city" }
+    }
+  }
+}
+
+
+GET data_index/_count
+
+
+GET data_index/_search
+{
+  "size": 1,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "code": {
+              "value": "63702"
+            }
+          }
+        },
+        {
+          "term": {
+            "county": {
+              "value": "CAPE GIRARDEAU"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "cities": {
+      "terms": {
+        "field": "city"
+      }
+    }
+  }
+}
+
+
