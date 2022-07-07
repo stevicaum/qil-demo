@@ -582,6 +582,20 @@ GET data_index/_search
   }
 }
 
+GET book_index/_search
+{
+  "query": {
+    "match": { "chapter": "door the closed behind" }
+  },
+  "highlight" : {
+    "number_of_fragments" : 3,
+    "fragment_size" : 150,
+    "fields" : {
+      "chapter" : { "pre_tags" : ["<b>"], "post_tags" : ["</b>"] }
+    }
+  }
+}
+
 PUT /data_index
 {
   "mappings": {
